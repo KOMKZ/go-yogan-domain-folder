@@ -316,7 +316,7 @@ func TestDeleteFolder_HasChildren(t *testing.T) {
 	err := svc.DeleteFolder(ctx, 1)
 
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "children")
+	assert.ErrorIs(t, err, ErrHasChildren)
 	mockRepo.AssertExpectations(t)
 }
 
@@ -486,11 +486,11 @@ func TestGetFolder_NotFound(t *testing.T) {
 	svc := NewService(mockRepo)
 	ctx := context.Background()
 
-	mockRepo.On("FindByID", ctx, uint(999)).Return(nil, ErrFolderNotFound)
+	mockRepo.On("FindByID", ctx, uint(999)).Return(nil, ErrNotFound)
 
 	result, err := svc.GetFolder(ctx, 999)
 
-	assert.ErrorIs(t, err, ErrFolderNotFound)
+	assert.ErrorIs(t, err, ErrNotFound)
 	assert.Nil(t, result)
 	mockRepo.AssertExpectations(t)
 }
@@ -551,7 +551,7 @@ func TestUpdateFolder_NotFound(t *testing.T) {
 	svc := NewService(mockRepo)
 	ctx := context.Background()
 
-	mockRepo.On("FindByID", ctx, uint(999)).Return(nil, ErrFolderNotFound)
+	mockRepo.On("FindByID", ctx, uint(999)).Return(nil, ErrNotFound)
 
 	input := &UpdateFolderInput{
 		ID:   999,
@@ -559,7 +559,7 @@ func TestUpdateFolder_NotFound(t *testing.T) {
 	}
 	folder, err := svc.UpdateFolder(ctx, input)
 
-	assert.ErrorIs(t, err, ErrFolderNotFound)
+	assert.ErrorIs(t, err, ErrNotFound)
 	assert.Nil(t, folder)
 	mockRepo.AssertExpectations(t)
 }
@@ -570,11 +570,11 @@ func TestDeleteFolder_NotFound(t *testing.T) {
 	svc := NewService(mockRepo)
 	ctx := context.Background()
 
-	mockRepo.On("FindByID", ctx, uint(999)).Return(nil, ErrFolderNotFound)
+	mockRepo.On("FindByID", ctx, uint(999)).Return(nil, ErrNotFound)
 
 	err := svc.DeleteFolder(ctx, 999)
 
-	assert.ErrorIs(t, err, ErrFolderNotFound)
+	assert.ErrorIs(t, err, ErrNotFound)
 	mockRepo.AssertExpectations(t)
 }
 
@@ -635,7 +635,7 @@ func TestCreateFolder_ParentNotFound(t *testing.T) {
 
 	parentID := uint(999)
 	mockRepo.On("ExistsByNameAndParent", ctx, "子文件夹", &parentID, (*uint)(nil)).Return(false, nil)
-	mockRepo.On("FindByID", ctx, parentID).Return(nil, ErrFolderNotFound)
+	mockRepo.On("FindByID", ctx, parentID).Return(nil, ErrNotFound)
 
 	input := &CreateFolderInput{
 		Name:     "子文件夹",
