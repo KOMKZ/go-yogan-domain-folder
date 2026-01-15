@@ -20,4 +20,7 @@ var (
 
 	// ErrMaxDepthExceeded 超过最大深度限制
 	ErrMaxDepthExceeded = errors.New("max folder depth exceeded")
+
+	// ErrHasChildren 文件夹下有子节点，无法删除
+	ErrHasChildren = errors.New("cannot delete folder with children")
 )

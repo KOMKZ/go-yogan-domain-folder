@@ -161,7 +161,7 @@ func (s *Service) DeleteFolder(ctx context.Context, id uint) error {
 		return err
 	}
 	if hasChildren {
-		return fmt.Errorf("cannot delete folder with children")
+		return ErrHasChildren
 	}
 
 	return s.repo.Delete(ctx, id)
