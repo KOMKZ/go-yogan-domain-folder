@@ -50,7 +50,7 @@ func (r *GormRepository) FindByID(ctx context.Context, id uint) (*model.Folder, 
 	err := r.table(ctx).First(&folder, id).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrFolderNotFound
+			return nil, ErrNotFound
 		}
 		return nil, err
 	}
