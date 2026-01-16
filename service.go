@@ -303,6 +303,28 @@ func (s *Service) ReorderFolder(ctx context.Context, id uint, newOrder int) erro
 	return s.repo.UpdateSortOrder(ctx, id, newOrder)
 }
 
+// GetDescendantIDs 获取指定文件夹及其所有子孙的 ID 列表
+// 用于实现"选择父分类时搜索所有子分类下的内容"功能
+func (s *Service) GetDescendantIDs(ctx context.Context, id uint) ([]uint, error) {
+	folder, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// 使用 path 前缀查询所有子孙节点
+	descendants, err := s.repo.FindByPath(ctx, folder.Path)
+	if err != nil {
+		return nil, err
+	}
+
+	ids := make([]uint, len(descendants))
+	for i, d := range descendants {
+		ids[i] = d.ID
+	}
+
+	return ids, nil
+}
+
 // validateName 验证名称
 func (s *Service) validateName(name string) error {
 	name = strings.TrimSpace(name)
