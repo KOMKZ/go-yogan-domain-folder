@@ -37,4 +37,8 @@ type Repository interface {
 	// 检查
 	ExistsByNameAndParent(ctx context.Context, name string, parentID *uint, excludeID *uint) (bool, error)
 	HasChildren(ctx context.Context, id uint) (bool, error)
+
+	// 计数操作
+	IncrementItemCount(ctx context.Context, id uint, delta int) error      // 更新直接子项数量
+	IncrementTotalItemCount(ctx context.Context, path string, delta int) error // 更新祖先链的总数量
 }

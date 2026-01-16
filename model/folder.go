@@ -14,8 +14,10 @@ type Folder struct {
 	ParentID  *uint          `gorm:"index" json:"parentId"`
 	SortOrder int            `gorm:"default:0" json:"sortOrder"`
 	Depth     int            `gorm:"default:0" json:"depth"`
-	Path      string         `gorm:"size:1000" json:"path"` // 物化路径，如 "/1/3/5/"
-	CreatedAt time.Time      `json:"createdAt"`
+	Path           string         `gorm:"size:1000" json:"path"`           // 物化路径，如 "/1/3/5/"
+	ItemCount      int            `gorm:"default:0" json:"itemCount"`      // 直接子项数量
+	TotalItemCount int            `gorm:"default:0" json:"totalItemCount"` // 所有子孙的总数量
+	CreatedAt      time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt,omitempty"`
 
@@ -25,22 +27,26 @@ type Folder struct {
 
 // FolderNode 用于树形结构展示
 type FolderNode struct {
-	ID        uint          `json:"id"`
-	Name      string        `json:"name"`
-	ParentID  *uint         `json:"parentId"`
-	SortOrder int           `json:"sortOrder"`
-	Depth     int           `json:"depth"`
-	Children  []*FolderNode `json:"children,omitempty"`
+	ID             uint          `json:"id"`
+	Name           string        `json:"name"`
+	ParentID       *uint         `json:"parentId"`
+	SortOrder      int           `json:"sortOrder"`
+	Depth          int           `json:"depth"`
+	ItemCount      int           `json:"itemCount"`
+	TotalItemCount int           `json:"totalItemCount"`
+	Children       []*FolderNode `json:"children,omitempty"`
 }
 
 // ToNode 将 Folder 转换为 FolderNode
 func (f *Folder) ToNode() *FolderNode {
 	return &FolderNode{
-		ID:        f.ID,
-		Name:      f.Name,
-		ParentID:  f.ParentID,
-		SortOrder: f.SortOrder,
-		Depth:     f.Depth,
-		Children:  nil,
+		ID:             f.ID,
+		Name:           f.Name,
+		ParentID:       f.ParentID,
+		SortOrder:      f.SortOrder,
+		Depth:          f.Depth,
+		ItemCount:      f.ItemCount,
+		TotalItemCount: f.TotalItemCount,
+		Children:       nil,
 	}
 }

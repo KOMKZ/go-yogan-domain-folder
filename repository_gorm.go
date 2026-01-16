@@ -190,6 +190,28 @@ func (r *GormRepository) HasChildren(ctx context.Context, id uint) (bool, error)
 	return count > 0, err
 }
 
+// IncrementItemCount 更新指定文件夹的直接子项数量
+// delta 可以为正数（增加）或负数（减少）
+func (r *GormRepository) IncrementItemCount(ctx context.Context, id uint, delta int) error {
+	return r.table(ctx).
+		Where("id = ?", id).
+		Update("item_count", gorm.Expr("GREATEST(item_count + ?, 0)", delta)).Error
+}
+
+// IncrementTotalItemCount 更新祖先链上所有节点的 total_item_count
+// path 为当前节点的路径，会更新 path 上所有祖先节点
+func (r *GormRepository) IncrementTotalItemCount(ctx context.Context, path string, delta int) error {
+	// 解析路径获取所有祖先 ID
+	ids := parsePathIDs(path)
+	if len(ids) == 0 {
+		return nil
+	}
+
+	return r.table(ctx).
+		Where("id IN ?", ids).
+		Update("total_item_count", gorm.Expr("GREATEST(total_item_count + ?, 0)", delta)).Error
+}
+
 // parsePathIDs 解析路径中的 ID 列表
 // 路径格式："/1/3/5/" -> [1, 3, 5]
 func parsePathIDs(path string) []uint {

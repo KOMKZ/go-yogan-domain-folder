@@ -337,6 +337,23 @@ func (s *Service) validateName(name string) error {
 	return nil
 }
 
+// IncrementItemCount 更新文件夹的子项数量
+// 同时更新 item_count（直接子项）和祖先链的 total_item_count
+func (s *Service) IncrementItemCount(ctx context.Context, folderID uint, delta int) error {
+	folder, err := s.repo.FindByID(ctx, folderID)
+	if err != nil {
+		return err
+	}
+
+	// 1. 更新当前文件夹的 item_count
+	if err := s.repo.IncrementItemCount(ctx, folderID, delta); err != nil {
+		return err
+	}
+
+	// 2. 更新祖先链的 total_item_count
+	return s.repo.IncrementTotalItemCount(ctx, folder.Path, delta)
+}
+
 // buildTree 构建树结构
 func buildTree(folders []*model.Folder, rootParentID *uint) []*model.FolderNode {
 	nodeMap := make(map[uint]*model.FolderNode)
